@@ -1,22 +1,40 @@
 import { useState } from "react";
 
+// Square component represents each square on the board
 function Square({ value, onSquareClick }) {
   return (
+    // Render a button for the square
     <button className="square" onClick={onSquareClick}>
       {value}
     </button>
   );
 }
 
+// Board component manages the state of the game
 export default function Board() {
+  // State to track whose turn it is and the state of the squares
+  const [XisNext, setXIsNext] = useState(true);
   const [squares, setSquares] = useState(Array(9).fill(null));
 
   function handleClick(i) {
+    // Ignore click if square is already filled
+    if (squares[i]) return;
+
+    // Create a copy of squares array to modify
     const nextSquares = squares.slice();
-    nextSquares[i] = "X";
+
+    // Set the square to "X" or "O" based on whose turn it is
+    if (XisNext === true) {
+      nextSquares[i] = "X";
+    } else {
+      nextSquares[i] = "O";
+    }
+    // Update state with new squares and toggle turn
+    setXIsNext(!XisNext);
     setSquares(nextSquares);
   }
 
+  // Render the board with 9 squares
   return (
     <>
       <div className="board-row">
