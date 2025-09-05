@@ -11,32 +11,38 @@ function Square({ value, onSquareClick }) {
 }
 
 // Board component manages the state of the game
-export default function Board() {
-  // State to track whose turn it is and the state of the squares
-  const [XisNext, setXIsNext] = useState(true);
-  const [squares, setSquares] = useState(Array(9).fill(null));
+function Board({ xIsNext, squares, onPlay }) {
+  // Remove local state - use props instead
+  const winner = calculateWinner(squares);
+  let status;
+  if (winner) {
+    status = "Winner: " + winner;
+  } else {
+    status = "Next player: " + (xIsNext ? "X" : "O");
+  }
 
   function handleClick(i) {
-    // Ignore click if square is already filled
-    if (squares[i]) return;
+    // If square is already filled or there's a winner, do nothing
+    if (squares[i] || calculateWinner(squares)) return;
 
     // Create a copy of squares array to modify
     const nextSquares = squares.slice();
 
     // Set the square to "X" or "O" based on whose turn it is
-    if (XisNext === true) {
+    if (xIsNext === true) {
       nextSquares[i] = "X";
     } else {
       nextSquares[i] = "O";
     }
-    // Update state with new squares and toggle turn
-    setXIsNext(!XisNext);
-    setSquares(nextSquares);
+
+    // Let parent handle the state update
+    onPlay(nextSquares);
   }
 
   // Render the board with 9 squares
   return (
     <>
+      <div className="status">{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -56,6 +62,33 @@ export default function Board() {
   );
 }
 
+export default function Game() {
+  // State to track the game history and whose turn it is
+  const [xIsNext, setXIsNext] = useState(true);
+  // History is an array of board states
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const currentSquares = history[history.length - 1];
+
+  function handlePlay(nextSquares) {
+    // Update history with the new board state
+    setHistory([...history, nextSquares]);
+    // Toggle whose turn it is
+    setXIsNext(!xIsNext);
+  }
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className="game-info">
+        <div>{/* status */}</div>
+        <ol>{/* TODO */}</ol>
+      </div>
+    </div>
+  );
+}
+
 function calculateWinner(squares) {
   // Define winning combinations
   const lines = [
@@ -68,6 +101,7 @@ function calculateWinner(squares) {
     [0, 4, 8],
     [2, 4, 6],
   ];
+
   // Check each winning combination
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
@@ -75,7 +109,7 @@ function calculateWinner(squares) {
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
     }
-    // If no winner, return null
   }
+  // If no winner, return null
   return null;
 }

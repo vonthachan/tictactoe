@@ -1,5 +1,5 @@
 * {
-  background-color: rgb(45, 45, 45);
+  background-color: rgb(209, 209, 209);
   box-sizing: border-box;
 }
 
@@ -58,7 +58,7 @@ body {
 }
 
 .square {
-  background: #fff;
+  background: #ffffff;
   border: 1px solid #999;
   float: left;
   font-size: 24px;
